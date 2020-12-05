@@ -17,11 +17,14 @@ class Keepout:
                 * KEEPOUT_SIZE / 2, BLOCK_SIZE * KEEPOUT_SIZE, BLOCK_SIZE * KEEPOUT_SIZE]
         pygame.draw.rect(self.screen, self.color, rect, 5)
 
-    def update_status(self, subject):
-        self.is_breached(subject)
+    def update(self, subjects):
+        self.is_breached(subjects)
 
-    def is_breached(self, subject):
-        if get_distance(subject.position, self.position) <= BLOCK_SIZE * KEEPOUT_SIZE:
+    def is_breached(self, subjects):
+        breach_list = []
+        for s in subjects:
+            breach_list.append(get_distance(s.position, self.position) <= BLOCK_SIZE * KEEPOUT_SIZE / 2)
+        if any(breach_list):
             self.breached = True
             self.color = BREACH_COLOR
         else:

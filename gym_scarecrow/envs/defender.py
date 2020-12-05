@@ -18,6 +18,6 @@ class Defender:
     def draw(self):
         pygame.draw.circle(self.screen, self.color, [int(self.position[0]), int(self.position[1])], self.size)
 
-    def update_status(self):
+    def update(self):
         self.grid = get_grid(self.position)
 

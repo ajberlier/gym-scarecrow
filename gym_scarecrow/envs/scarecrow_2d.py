@@ -24,9 +24,9 @@ class Scarecrow2D:
         self.is_render = is_render
         self.prev_distance = 0
         self.cur_distance = 0
+        self.subjects = [Subject(self.screen) for _ in range(SUBJECT_COUNT)]
 
     def action(self, action):
-        self.prev_distance = self.cur_distance
         speed = BLOCK_SIZE
 
         if action == 0:
@@ -46,11 +46,11 @@ class Scarecrow2D:
             if self.defender.position[1] > 770:
                 self.defender.position[1] = 770
 
-        self.defender.update_status()
-        self.subject.update_status(self.defender)
-        self.keepout.update_status(self.subject)
-
-        self.cur_distance = get_distance(self.defender.position, self.subject.position)
+        # TODO: multiple defenders
+        self.defender.update()
+        for s in self.subjects:
+            s.update(self.defender)
+        self.keepout.update(self.subjects)
 
     # TODO: update this with the observation feature vector on white board
     def observe(self):
@@ -83,21 +83,15 @@ class Scarecrow2D:
                 pygame.display.quit()
                 pygame.quit()
                 return True
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_PAGEUP:
-                    self.game_speed += 30
-                elif event.key == pygame.K_PAGEDOWN:
-                    self.game_speed -= 30
-                if self.game_speed < 0:
-                    self.game_speed = 0
-                elif self.game_speed > 150:
-                    self.game_speed = 150
+
+
 
         self.screen.fill((100, 255, 150))
 
         self.keepout.draw()
         self.defender.draw()
-        self.subject.draw()
+        for s in self.subjects:
+            s.draw()
         self.draw_text()
         self.draw_grid()
 
