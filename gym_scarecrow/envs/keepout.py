@@ -23,7 +23,10 @@ class Keepout:
     def is_breached(self, subjects):
         breach_list = []
         for s in subjects:
-            breach_list.append(get_distance(s.position, self.position) <= BLOCK_SIZE * KEEPOUT_SIZE / 2)
+            breach_list.append(s.position[0] <= self.position[0] + BLOCK_SIZE * KEEPOUT_SIZE / 2
+                               >= s.position[0] >= self.position[0] - BLOCK_SIZE * KEEPOUT_SIZE / 2 and
+                               s.position[1] <= self.position[1] + BLOCK_SIZE * KEEPOUT_SIZE / 2
+                               >= s.position[1] >= self.position[1] - BLOCK_SIZE * KEEPOUT_SIZE / 2)
         if any(breach_list):
             self.breached = True
             self.color = BREACH_COLOR
