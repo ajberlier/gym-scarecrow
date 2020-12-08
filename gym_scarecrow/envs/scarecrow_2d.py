@@ -92,7 +92,7 @@ class Scarecrow2D:
         self.defender.draw()
         for s in self.subjects:
             s.draw()
-        self.draw_text()
+            self.draw_text(s)
         self.draw_grid()
 
         pygame.display.flip()
@@ -106,9 +106,8 @@ class Scarecrow2D:
         for h in range(int(SCREEN_HEIGHT / BLOCK_SIZE)):
             pygame.draw.line(self.screen, (0, 0, 0), (0, h * BLOCK_SIZE), (SCREEN_WIDTH, h * BLOCK_SIZE))
 
-    def draw_text(self):
-
-        if self.subject.spooked:
+    def draw_text(self, s):
+        if s.spooked:
             text = self.font.render("Spooked!", True, SPOOK_COLOR)
             text_rect = text.get_rect()
             text_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 10)
