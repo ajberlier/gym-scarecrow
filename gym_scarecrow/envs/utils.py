@@ -4,8 +4,9 @@ import pygame
 import numpy as np
 from gym_scarecrow.envs.params import *
 
+
 def get_grid(position):
-    return [int(position[0] / BLOCK_SIZE), int(position[1] / BLOCK_SIZE)]
+    return [int(position[0] / GRID_SIZE), int(position[1] / GRID_SIZE)]
 
 
 def get_distance(p1, p2):

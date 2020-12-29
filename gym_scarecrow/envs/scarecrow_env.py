@@ -1,4 +1,5 @@
 import numpy as np
+from gym_scarecrow.envs.params import *
 
 # gym
 import gym
@@ -14,7 +15,8 @@ class ScarecrowEnv(gym.Env):
         print('Game Init!')
         # 0:left, 1:right, 2:up, 3:down
         self.action_space = spaces.Discrete(4)
-        self.observation_space = spaces.Box(np.array([-12, -8, 0]), np.array([12, 8, 120]), dtype=np.int)
+        # FIXME: this needs updated if extended to 3D
+        self.observation_space = spaces.Discrete(SCREEN_HEIGHT/GRID_SIZE * SCREEN_WIDTH/GRID_SIZE)
         self.is_view = True
         self.scarecrow = Scarecrow2D(self.is_view)
         self.mode = 0
@@ -27,6 +29,7 @@ class ScarecrowEnv(gym.Env):
             self.scarecrow = Scarecrow2D(self.is_view)
         else:
             self.scarecrow = Scarecrow2D(self.is_view)
+        obs = self.scarecrow.observe()
         obs = self.scarecrow.observe()
         return obs
 

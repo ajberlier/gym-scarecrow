@@ -3,16 +3,17 @@ import numpy as np
 import math
 import random
 import matplotlib.pyplot as plt
+from gym_scarecrow.envs.params import *
 
 # gym
 import gym
 import gym_scarecrow
 
+# TODO: clean up this whole file
 
 def simulate():
     learning_rate = get_learning_rate(0)
     explore_rate = get_explore_rate(0)
-    discount_factor = 0.99
     total_reward = 0
     total_rewards = []
     training_done = False
@@ -29,7 +30,7 @@ def simulate():
             break
 
         obv = env.reset()
-        state_0 = state_to_bucket(obv)
+        state_0 = obv
         total_reward = 0
 
         if episode >= threshold:
@@ -38,14 +39,13 @@ def simulate():
         for t in range(MAX_T):
             action = select_action(state_0, explore_rate)
             obv, reward, done, _ = env.step(action)
-            state = state_to_bucket(obv)
+            state = obv
             env.remember(state_0, action, reward, state, done)
             total_reward += reward
 
             # Update the Q based on the result
             best_q = np.amax(q_table[state])
-            q_table[state_0 + (action,)] += learning_rate * (
-                        reward + discount_factor * best_q - q_table[state_0 + (action,)])
+            q_table[state_0 + action] += learning_rate * (reward + DISCOUNT_FACTOR * best_q - q_table[state_0 + action])
 
             # Setting up for the next iteration
             state_0 = state
@@ -67,7 +67,7 @@ def load_and_play():
 
     # load data from history file
     print("Start updating q_table")
-    discount_factor = 0.99
+    DISCOUNT_FACTOR = 0.99
     for list in history_list:
         history = load_data(list)
         learning_rate = get_learning_rate(0)
@@ -78,9 +78,8 @@ def load_and_play():
         for data in history:
             state_0, action, reward, state, done = data
             best_q = np.amax(q_table[state])
-            q_table[state_0 + (action,)] += learning_rate * (
-                        reward + discount_factor * (best_q) - q_table[state_0 + (action,)])
-            if done == True:
+            q_table[state_0 + (action,)] += learning_rate * (reward + DISCOUNT_FACTOR * best_q - q_table[state_0 + (action,)])
+            if done:
                 i += 1
                 learning_rate = get_learning_rate(i)
 
@@ -98,7 +97,7 @@ def load_and_play():
             state_0 = state
             total_reward += reward
             best_q = np.amax(q_table[state])
-            q_table[state_0 + (action,)] += learning_rate * (reward + discount_factor * best_q - q_table[state_0 + (action,)])
+            q_table[state_0 + (action,)] += learning_rate * (reward + DISCOUNT_FACTOR * best_q - q_table[state_0 + (action,)])
             env.render()
             if done or t >= MAX_T - 1:
                 print("Episode %d finished after %i time steps with total reward = %f."
@@ -124,23 +123,6 @@ def get_learning_rate(t):
     return max(MIN_LEARNING_RATE, min(0.8, 1.0 - math.log10((t + 1) / DECAY_FACTOR)))
 
 
-def state_to_bucket(state):
-    bucket_indice = []
-    for i in range(len(state)):
-        if state[i] <= STATE_BOUNDS[i][0]:
-            bucket_index = 0
-        elif state[i] >= STATE_BOUNDS[i][1]:
-            bucket_index = NUM_BUCKETS[i] - 1
-        else:
-            # Mapping the state bounds to the bucket array
-            bound_width = STATE_BOUNDS[i][1] - STATE_BOUNDS[i][0]
-            offset = (NUM_BUCKETS[i] - 1) * STATE_BOUNDS[i][0] / bound_width
-            scaling = (NUM_BUCKETS[i] - 1) / bound_width
-            bucket_index = int(round(scaling * state[i] - offset))
-        bucket_indice.append(bucket_index)
-    return tuple(bucket_indice)
-
-
 def load_data(file):
     np_load_old = np.load
     np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
@@ -151,18 +133,10 @@ def load_data(file):
 
 if __name__ == "__main__":
     env = gym.make("Scarecrow-v0")
-    NUM_BUCKETS = tuple((env.observation_space.high + np.ones(env.observation_space.shape)).astype(int))
+
     NUM_ACTIONS = env.action_space.n
-    STATE_BOUNDS = list(zip(env.observation_space.low, env.observation_space.high))
+    NUM_OBS = env.observation_space.n
 
-    MIN_EXPLORE_RATE = 0.001
-    MIN_LEARNING_RATE = 0.2
-    DECAY_FACTOR = np.prod(NUM_BUCKETS, dtype=float) / 10.0
-
-    NUM_EPISODES = 9999999
-    MAX_T = 2000
-    # MAX_T = np.prod(NUM_BUCKETS, dtype=int) * 100
-
-    q_table = np.zeros(NUM_BUCKETS + (NUM_ACTIONS,), dtype=float)
+    q_table = np.zeros((GRID_COUNT,) + (NUM_ACTIONS,), dtype=float)
     simulate()
     # load_and_play()

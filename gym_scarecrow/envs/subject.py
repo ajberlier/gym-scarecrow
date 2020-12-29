@@ -17,9 +17,6 @@ class Subject:
         self.velocity = (np.random.rand(2)) * 10
         self.acceleration = (np.random.rand(2))
         # TODO: make these parameters
-        self.max_speed = 5
-        self.max_force = 0.2
-        self.perception = 50
         self.spooked = False
         self.grid = get_grid(self.position)
 
@@ -32,19 +29,18 @@ class Subject:
         self.position += self.velocity
         self.velocity += self.acceleration
         # speed limit
-        if np.linalg.norm(self.velocity) > self.max_speed:
-            self.velocity = self.velocity / np.linalg.norm(self.velocity) * self.max_speed
+        if np.linalg.norm(self.velocity) > SUBJECT_SPEED:
+            self.velocity = self.velocity / np.linalg.norm(self.velocity) * SUBJECT_SPEED
 
     def separation(self, subjects):
         avg = np.array([0, 0]).astype(float)
         total = 0
         steering_force = 0
         for s in subjects:
-            dist = np.linalg.norm(self.pos - b.pos)
-            # dist = distance(self.pos, b.pos)
-            if s!= self and (dist < self.perception):
-                diff = self.pos - b.pos
-                diff /= dist
+            dist = get_distance(self.position, s.position)
+            if s != self and (dist < SUBJECT_PERCEPTION):
+                diff = list(np.array(self.position) - np.array(s.position))
+                diff = list(np.array(diff)/np.array(dist))
                 total += 1
                 avg += diff
 
@@ -52,13 +48,11 @@ class Subject:
             avg /= total
             steering_force = avg
             if np.linalg.norm(steering_force) > 0:
-                steering_force = (
-                                         steering_force / np.linalg.norm(steering_force)) * self.max_speed
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * SUBJECT_SPEED
 
             steering_force -= self.velocity
-            if np.linalg.norm(steering_force) > self.max_force:
-                steering_force = (
-                                         steering_force / np.linalg.norm(steering_force)) * (self.max_force + 0.1)
+            if np.linalg.norm(steering_force) > SUBJECT_FORCE:
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * (SUBJECT_FORCE + 0.1)
 
         return steering_force
 
@@ -67,13 +61,13 @@ class Subject:
         total = 0
         steering_force = 0
         for s in subjects:
-            if s!= self and (distance(self.position, b.position) < self.perception):
+            if s != self and (get_distance(self.position, s.position) < SUBJECT_PERCEPTION):
                 total += 1
-                avg += b.velocity
+                avg += s.velocity
         if total:
             avg /= total
             # direction vector
-            avg = (avg / np.linalg.norm(avg)) * self.max_speed
+            avg = (avg / np.linalg.norm(avg)) * SUBJECT_SPEED
             steering_force = avg - self.velocity
 
         return steering_force
@@ -83,41 +77,42 @@ class Subject:
         total = 0
         steering_force = 0
         for s in subjects:
-            if s!= self and (distance(self.pos, b.pos) < self.perception):
+            if s != self and (get_distance(self.position, s.position) < SUBJECT_PERCEPTION):
                 total += 1
-                avg += b.pos
+                avg += s.position
         if total:
             mass_center = avg / total
-            steering_force = mass_center - self.pos
+            steering_force = mass_center - self.position
 
             if np.linalg.norm(steering_force) > 0:
-                steering_force = (
-                                         steering_force / np.linalg.norm(steering_force)) * self.max_speed
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * SUBJECT_SPEED
 
             steering_force -= self.velocity
-            if np.linalg.norm(steering_force) > self.max_force:
-                steering_force = (
-                                         steering_force / np.linalg.norm(steering_force)) * self.max_force
+            if np.linalg.norm(steering_force) > SUBJECT_FORCE:
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * SUBJECT_FORCE
 
         return steering_force
 
-    def avoidance(self, defenders):
+    # TODO: update for multiple defenders
+    def avoidance(self, defender):
         steering_force = np.array([0, 0]).astype(float)
         total = 0
-        for d in defenders:
-            # TODO: use the utils distence
-            dist = np.linalg.norm(self.position - d.position)
-            if dist < self.perception:
-                steering_force += (self.position - d.position) / dist
-                total += 1
+        # TODO: update for multiple defenders
+        # for d in defender:
+        d = defender
+        dist = get_distance(self.position, d.position)
+        if dist < SUBJECT_PERCEPTION:
+            diff = list(np.array(self.position) - np.array(d.position))
+            steering_force += list(np.array(diff) / np.array(dist))
+            total += 1
 
         if total:
             steering_force /= total
             if np.linalg.norm(steering_force) > 0:
-                steering_force = (steering_force / np.linalg.norm(steering_force)) * self.max_speed
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * SUBJECT_SPEED
 
-            if np.linalg.norm(steering_force) > self.max_force:
-                steering_force = (steering_force / np.linalg.norm(steering_force)) * self.max_force * 2
+            if np.linalg.norm(steering_force) > SUBJECT_FORCE:
+                steering_force = (steering_force / np.linalg.norm(steering_force)) * SPOOK_FORCE
 
         return steering_force
 
@@ -130,7 +125,7 @@ class Subject:
         self.acceleration += self.avoidance(defenders)
 
     def is_spooked(self, defender):
-        if get_distance(defender.position, self.position) <= BLOCK_SIZE*2:
+        if get_distance(defender.position, self.position) <= SPOOK_DISTANCE:
             self.spooked = True
             self.color = SPOOK_COLOR
         else:
@@ -141,7 +136,7 @@ class Subject:
         if self.position[0] > SCREEN_WIDTH:
             self.position[0] = 0
         elif self.position[0] < 0:
-            self.ppositionos[0] = SCREEN_WIDTH
+            self.position[0] = SCREEN_WIDTH
 
         if self.position[1] > SCREEN_HEIGHT:
             self.position[1] = 0

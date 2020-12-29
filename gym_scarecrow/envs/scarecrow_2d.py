@@ -20,14 +20,13 @@ class Scarecrow2D:
         self.game_speed = GAME_SPEED
         self.keepout = Keepout(self.screen)
         self.defender = Defender(self.screen)
-        self.subject = Subject(self.screen)
         self.is_render = is_render
         self.prev_distance = 0
         self.cur_distance = 0
         self.subjects = [Subject(self.screen) for _ in range(SUBJECT_COUNT)]
 
     def action(self, action):
-        speed = BLOCK_SIZE
+        speed = GRID_SIZE
 
         if action == 0:
             self.defender.position[0] -= speed
@@ -49,15 +48,64 @@ class Scarecrow2D:
         # TODO: multiple defenders
         self.defender.update()
         for s in self.subjects:
+            s.bounds()
+            # TODO: update to multiple defenders
+            s.flock(self.subjects, self.defender)
             s.update(self.defender)
         self.keepout.update(self.subjects)
 
-    # TODO: update this with the observation feature vector on white board
     def observe(self):
-        # return dif_w, dif_h
-        dif_w = self.defender.grid[0] - self.subject.grid[0]
-        dif_h = self.defender.grid[1] - self.subject.grid[1]
-        return dif_w, dif_h
+        """
+        0: empty field (green space)
+        1: defender only (blue space)
+        2: subject only (red space)
+        3: keepout area only (black space)
+        4: keepout area and defender (black and blue space)
+        5: keepout area and subject (black and red space --> breached!)
+        6: defender and subject (red and blue space --> spooked!)
+        7: keepout area and defender and subject (black, blue, and red space --> breached! spooked!)
+        """
+        grid_width = SCREEN_WIDTH / GRID_SIZE
+        sub_idx = []
+        def_idx = []
+        keepout_idx = []
+
+        # set every grid to empty field 0: empty field (green space)
+        obs = [0]*GRID_COUNT
+
+        # subject grids
+        for s in self.subjects:
+            sub_idx.append(grid_width*s.grid[0]+s.grid[1])
+
+        #
+
+        # TODO: update for multiple defenders
+        # for d in defenders:
+        d = self.defender
+        def_idx.append(grid_width*d.grid[0]+d.grid[1])
+        for idx in def_idx:
+            obs[idx] = 2
+
+        # check 3: keepout area only (black space)
+        for i in range(KEEPOUT_SIZE*2):
+            for j in range(KEEPOUT_SIZE*2):
+                keepout_idx.append(grid_width*(self.keepout.grid[0]-KEEPOUT_SIZE+i)+(self.keepout.grid[1]-KEEPOUT_SIZE+j))
+        for idx in keepout_idx:
+            obs[idx] = 3
+
+        # check 4
+
+
+        # check 5
+
+        # check 6
+
+        # check 7
+
+        print(obs)
+
+        # return an array of each spaces value
+        return obs
 
     # TODO: update with better reward
     def evaluate(self):
@@ -68,8 +116,9 @@ class Scarecrow2D:
         # TODO: if subject hits edge +5
         if self.cur_distance < self.prev_distance:
             reward = 1
-        if self.subject.spooked:
-            reward = 1000
+        for s in self.subjects:
+            if s.spooked:
+                reward = 1000
         return reward
 
     #TODO: Update for infinite horizon
@@ -83,8 +132,6 @@ class Scarecrow2D:
                 pygame.display.quit()
                 pygame.quit()
                 return True
-
-
 
         self.screen.fill((100, 255, 150))
 
@@ -100,11 +147,11 @@ class Scarecrow2D:
 
     def draw_grid(self):
 
-        for w in range(int(SCREEN_WIDTH / BLOCK_SIZE)):
-            pygame.draw.line(self.screen, (0, 0, 0), (w * BLOCK_SIZE, 0), (w * BLOCK_SIZE, SCREEN_HEIGHT))
+        for w in range(int(SCREEN_WIDTH / GRID_SIZE)):
+            pygame.draw.line(self.screen, (0, 0, 0), (w * GRID_SIZE, 0), (w * GRID_SIZE, SCREEN_HEIGHT))
 
-        for h in range(int(SCREEN_HEIGHT / BLOCK_SIZE)):
-            pygame.draw.line(self.screen, (0, 0, 0), (0, h * BLOCK_SIZE), (SCREEN_WIDTH, h * BLOCK_SIZE))
+        for h in range(int(SCREEN_HEIGHT / GRID_SIZE)):
+            pygame.draw.line(self.screen, (0, 0, 0), (0, h * GRID_SIZE), (SCREEN_WIDTH, h * GRID_SIZE))
 
     def draw_text(self, s):
         if s.spooked:
