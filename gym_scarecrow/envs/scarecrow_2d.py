@@ -1,7 +1,9 @@
 import pygame
 import math
+import numpy as np
 from gym_scarecrow.envs.utils import *
 from gym_scarecrow.envs.params import *
+from gym_scarecrow.envs.key_control import *
 from gym_scarecrow.envs.keepout import Keepout
 from gym_scarecrow.envs.defender import Defender
 from gym_scarecrow.envs.subject import Subject
@@ -24,23 +26,30 @@ class Scarecrow2D:
         self.prev_distance = 0
         self.cur_distance = 0
         self.subjects = [Subject(self.screen) for _ in range(SUBJECT_COUNT)]
+        self.steps = 0
 
     def action(self, action):
         speed = GRID_SIZE
-
+        # still
         if action == 0:
+            pass
+        # left
+        if action == 1:
             self.defender.position[0] -= speed
             if self.defender.position[0] < 30:
                 self.defender.position[0] = 30
-        elif action == 1:
+        # right
+        elif action == 2:
             self.defender.position[0] += speed
             if self.defender.position[0] > 1170:
                 self.defender.position[0] = 1170
-        elif action == 2:
+        # up
+        elif action == 3:
             self.defender.position[1] -= speed
             if self.defender.position[1] < 30:
                 self.defender.position[1] = 30
-        elif action == 3:
+        # down
+        elif action == 4:
             self.defender.position[1] += speed
             if self.defender.position[1] > 770:
                 self.defender.position[1] = 770
@@ -54,6 +63,22 @@ class Scarecrow2D:
             s.update(self.defender)
         self.keepout.update(self.subjects)
 
+    def human_input(self):
+        keys_pressed = pygame.key.get_pressed()
+
+        if keys_pressed[pygame.K_LEFT]:
+            action = 1
+        elif keys_pressed[pygame.K_RIGHT]:
+            action = 2
+        elif keys_pressed[pygame.K_UP]:
+            action = 3
+        elif keys_pressed[pygame.K_DOWN]:
+            action = 4
+        else:
+            action = 0
+
+        return action
+
     def observe(self):
         """
         0: empty field (green space)
@@ -65,7 +90,6 @@ class Scarecrow2D:
         6: defender and subject (red and blue space --> spooked!)
         7: keepout area and defender and subject (black, blue, and red space --> breached! spooked!)
         """
-        grid_width = SCREEN_WIDTH / GRID_SIZE
         sub_idx = []
         def_idx = []
         keepout_idx = []
@@ -73,56 +97,87 @@ class Scarecrow2D:
         # set every grid to empty field 0: empty field (green space)
         obs = [0]*GRID_COUNT
 
-        # subject grids
-        for s in self.subjects:
-            sub_idx.append(grid_width*s.grid[0]+s.grid[1])
-
-        #
-
+        # check 1: defender only (blue space)
         # TODO: update for multiple defenders
         # for d in defenders:
         d = self.defender
-        def_idx.append(grid_width*d.grid[0]+d.grid[1])
+        def_idx.append(int(WIDTH_COUNT * (d.grid[1] - 1) + d.grid[0]) - 1)
+        # set every defender index to 1: defender only (blue space)
         for idx in def_idx:
-            obs[idx] = 2
+            obs[idx] = 1
+
+        # 2: subject only (red space)
+        # subject grids
+        for s in self.subjects:
+            sub_idx.append(int(WIDTH_COUNT * (s.grid[1] - 1) + s.grid[0]) - 1)
+        # set every sub_idx to 2: subject only (red space)
+        for idx in sub_idx:
+            if obs[idx] == 0:
+                obs[idx] = 2
+            # check 6: defender and subject (red and blue space --> spooked!)
+            elif obs[idx] == 1:
+                obs[idx] = 6
+            elif obs[idx] == 2 or obs[idx] == 6:
+                pass
+            else:
+                print('Subject observation ERROR!')
+                print(obs[idx])
 
         # check 3: keepout area only (black space)
-        for i in range(KEEPOUT_SIZE*2):
-            for j in range(KEEPOUT_SIZE*2):
-                keepout_idx.append(grid_width*(self.keepout.grid[0]-KEEPOUT_SIZE+i)+(self.keepout.grid[1]-KEEPOUT_SIZE+j))
+        k = self.keepout
+        for i in k.grids:
+            keepout_idx.append(int(WIDTH_COUNT * (i[1] - 1) + i[0]) - 1)
+
         for idx in keepout_idx:
-            obs[idx] = 3
+            if obs[idx] == 0:
+                obs[idx] = 3
+            # check 4: keepout area and defender (black and blue space)
+            elif obs[idx] == 1:
+                obs[idx] = 4
+            # 5: keepout area and subject (black and red space --> breached!)
+            elif obs[idx] == 2:
+                obs[idx] = 5
+            # 7: keepout area and defender and subject (black, blue, and red space --> breached! spooked!)
+            elif obs[idx] == 6:
+                obs[idx] = 7
+            else:
+                print('Keepout observation ERROR!')
 
-        # check 4
-
-
-        # check 5
-
-        # check 6
-
-        # check 7
-
-        print(obs)
+        # just checking my observation is correct
+        obs_array = np.reshape(np.asarray(obs), (HEIGHT_COUNT, WIDTH_COUNT))
 
         # return an array of each spaces value
-        return obs
+        return obs_array
 
     # TODO: update with better reward
     def evaluate(self):
+
         reward = 0
-        # TODO: if subject enters safezone, -10
-        # TODO: if collision of agents, -10
-        # TODO: if spooked subject, +1
-        # TODO: if subject hits edge +5
-        if self.cur_distance < self.prev_distance:
-            reward = 1
+
+        # encouraging it to stay near the keepout zone helped, small proportional penalty
+        d = self.defender
+        dist = abs(get_distance(d.position, self.keepout.position))
+        # reward = -dist / SCREEN_WIDTH
+
+        # if spooked subject, + 1
         for s in self.subjects:
             if s.spooked:
-                reward = 1000
+                reward += 2 * (1 - dist / SCREEN_WIDTH)
+
+        # if subject enters safezone, -10
+        if self.keepout.breached:
+            reward += -10
+
+        # TODO (when we have multiple agents): if collision of agents, -10
+
+
         return reward
 
     #TODO: Update for infinite horizon
     def is_done(self):
+        self.steps += 1
+        if self.steps >= MAX_STEPS:
+            return True
         return False
 
     def view(self):

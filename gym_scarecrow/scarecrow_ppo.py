@@ -39,7 +39,8 @@ def simulate():
         for t in range(MAX_T):
             action = select_action(state_0, explore_rate)
             obv, reward, done, _ = env.step(action)
-            state = obv
+            # state value
+            state = state_list[idx]
             env.remember(state_0, action, reward, state, done)
             total_reward += reward
 

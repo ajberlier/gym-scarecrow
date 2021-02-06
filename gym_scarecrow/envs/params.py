@@ -1,10 +1,10 @@
 # visual parameters
 CAPTION = 'SCAREcrow: Sentinel Conservation via Aerial Reconnaissance and Escort'
 ICON_PATH = 'assets/crow-skull-logo-removebg.png'
-SCREEN_HEIGHT, SCREEN_WIDTH = 800, 1200  # pixels
+SCREEN_WIDTH, SCREEN_HEIGHT = 1200, 800  # pixels
 GRID_SIZE = 20  # pixels
 KEEPOUT_SIZE = 20  # grids
-DEFENDER_SIZE = 10
+DEFENDER_SIZE = 2
 SUBJECT_SIZE = 10
 SPOOK_COLOR = (255, 140, 0)
 BREACH_COLOR = (255, 0, 0)
@@ -13,12 +13,13 @@ SUBJECT_COLOR = (255, 0, 0)
 DEFENDER_COLOR = (0, 0, 255)
 
 # reinforcement learner parameters
+ALGORITHM = 'Human'  # 'DQN', 'PPO', 'Human'
+TRAIN = False
+NUM_EPISODES = 1000
+MAX_STEPS = 1000
 DISCOUNT_FACTOR = 0.99
-MIN_EXPLORE_RATE = 0.001
-MIN_LEARNING_RATE = 0.2
-DECAY_FACTOR = 10
-NUM_EPISODES = 9999999
-MAX_T = 2000
+BATCH_SIZE = 32
+SOFT_UPDATE = 100
 
 # boids algorithm parameters
 SUBJECT_FORCE = 0.5
@@ -29,6 +30,9 @@ SPOOK_FORCE = 100
 
 # game parameters
 GAME_SPEED = 5  # fps
-SUBJECT_COUNT = 10  # pigs
-DEFENDER_COUNT = 2  # uavs
-GRID_COUNT = int(SCREEN_HEIGHT/GRID_SIZE * SCREEN_WIDTH/GRID_SIZE)
+SUBJECT_COUNT = 4  # pigs
+DEFENDER_COUNT = 1  # uavs
+WIDTH_COUNT = int(SCREEN_WIDTH/GRID_SIZE)
+HEIGHT_COUNT = int(SCREEN_HEIGHT/GRID_SIZE)
+GRID_COUNT = WIDTH_COUNT * HEIGHT_COUNT
+ACTION_MEANING = {0: 'still', 1: 'left', 2: 'right', 3: 'up', 4: 'down'}

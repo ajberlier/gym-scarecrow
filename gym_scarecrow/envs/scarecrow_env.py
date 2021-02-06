@@ -13,10 +13,9 @@ class ScarecrowEnv(gym.Env):
 
     def __init__(self):
         print('Game Init!')
-        # 0:left, 1:right, 2:up, 3:down
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(len(ACTION_MEANING))
         # FIXME: this needs updated if extended to 3D
-        self.observation_space = spaces.Discrete(SCREEN_HEIGHT/GRID_SIZE * SCREEN_WIDTH/GRID_SIZE)
+        self.observation_space = spaces.Box(low=0, high=7, shape=(HEIGHT_COUNT, WIDTH_COUNT), dtype=np.uint8)
         self.is_view = True
         self.scarecrow = Scarecrow2D(self.is_view)
         self.mode = 0
@@ -34,7 +33,6 @@ class ScarecrowEnv(gym.Env):
         return obs
 
     def step(self, action):
-
         self.scarecrow.action(action)
         reward = self.scarecrow.evaluate()
         done = self.scarecrow.is_done()
@@ -43,7 +41,6 @@ class ScarecrowEnv(gym.Env):
         return obs, reward, done, {}
 
     def render(self, mode='human', close=False):
-
         if self.is_view:
             self.scarecrow.view()
 
@@ -65,3 +62,9 @@ class ScarecrowEnv(gym.Env):
 
     def close(self):
         pass
+
+    def get_action_meanings(self):
+        return [ACTION_MEANING[i] for i in self._action_set]
+
+
+

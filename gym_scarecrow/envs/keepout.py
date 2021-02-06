@@ -11,9 +11,13 @@ class Keepout:
         self.color = KEEPOUT_COLOR
         self.position = [SCREEN_WIDTH - SCREEN_WIDTH / 2, SCREEN_HEIGHT - SCREEN_HEIGHT / 2]
         self.breached = False
-        self.breach_list = []
-        self.breach_subjects = []
-        self.grids = get_grid(self.position)
+        self.grids = []
+        pos = self.position
+        left_top = get_grid([pos[0] - (pos[0] % 100) - GRID_SIZE * KEEPOUT_SIZE / 2, pos[1] -
+                             (pos[1] % 100) - GRID_SIZE * KEEPOUT_SIZE / 2])
+        for i in range(KEEPOUT_SIZE):
+            for j in range(KEEPOUT_SIZE):
+                self.grids.append([left_top[0] + i, left_top[1] + j])
 
     def draw(self):
         pos = self.position
@@ -25,14 +29,16 @@ class Keepout:
         self.is_breached(subjects)
 
     def is_breached(self, subjects):
+        breach_list = []
+        breach_subjects = []
         for s in subjects:
             breach = (s.position[0] <= self.position[0] + GRID_SIZE * KEEPOUT_SIZE / 2
                       >= s.position[0] >= self.position[0] - GRID_SIZE * KEEPOUT_SIZE / 2 and
                       s.position[1] <= self.position[1] + GRID_SIZE * KEEPOUT_SIZE / 2
                       >= s.position[1] >= self.position[1] - GRID_SIZE * KEEPOUT_SIZE / 2)
-            self.breach_list.append(breach)
+            breach_list.append(breach)
             if breach:
-                self.breach_subjects.append(s)
+                breach_subjects.append(s)
         if any(breach_list):
             self.breached = True
             self.color = BREACH_COLOR

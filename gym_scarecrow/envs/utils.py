@@ -2,8 +2,9 @@ import os
 import math
 import pygame
 import numpy as np
-from gym_scarecrow.envs.params import *
+import matplotlib.pyplot as plt
 
+from gym_scarecrow.envs.params import *
 
 def get_grid(position):
     return [int(position[0] / GRID_SIZE), int(position[1] / GRID_SIZE)]
