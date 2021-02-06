@@ -29,7 +29,6 @@ class ScarecrowEnv(gym.Env):
         else:
             self.scarecrow = Scarecrow2D(self.is_view)
         obs = self.scarecrow.observe()
-        obs = self.scarecrow.observe()
         return obs
 
     def step(self, action):

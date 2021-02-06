@@ -13,7 +13,7 @@ SUBJECT_COLOR = (255, 0, 0)
 DEFENDER_COLOR = (0, 0, 255)
 
 # reinforcement learner parameters
-ALGORITHM = 'Human'  # 'DQN', 'PPO', 'Human'
+ALGORITHM = 'PPO'  # 'DQN', 'PPO', 'Human'
 TRAIN = False
 NUM_EPISODES = 1000
 MAX_STEPS = 1000
@@ -35,4 +35,4 @@ DEFENDER_COUNT = 1  # uavs
 WIDTH_COUNT = int(SCREEN_WIDTH/GRID_SIZE)
 HEIGHT_COUNT = int(SCREEN_HEIGHT/GRID_SIZE)
 GRID_COUNT = WIDTH_COUNT * HEIGHT_COUNT
-ACTION_MEANING = {0: 'still', 1: 'left', 2: 'right', 3: 'up', 4: 'down'}
+ACTION_MEANING = {0: 'still', 1: 'left', 2: 'right', 3: 'forward', 4: 'backward'}
