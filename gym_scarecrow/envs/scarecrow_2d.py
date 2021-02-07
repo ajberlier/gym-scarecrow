@@ -30,6 +30,7 @@ class Scarecrow2D:
 
     def action(self, action):
         speed = GRID_SIZE
+
         # still
         if action == 0:
             pass
@@ -63,6 +64,7 @@ class Scarecrow2D:
             s.update(self.defender)
         self.keepout.update(self.subjects)
 
+    # TODO: breakout human and rules input into an input class
     def human_input(self):
         keys_pressed = pygame.key.get_pressed()
 
@@ -76,6 +78,153 @@ class Scarecrow2D:
             action = 4
         else:
             action = 0
+
+        return action
+
+    # FIXME: this is a very messy attempt to get something before the deadline as the RL tuning is still in process
+    def rule_input(self):
+        # find the subject that is closest to the keepout center
+        s_dist_list = []
+        for s in self.subjects:
+            dist = abs(get_distance(s.position, self.keepout.position))
+            s_dist_list.append(dist)
+
+        # get the shortest distance
+        min_idx = s_dist_list.index(min(s_dist_list))
+        closest_s = self.subjects[min_idx]
+
+        if min(s_dist_list) > 400 or closest_s.spooked:
+
+            # return to center of keepout
+            # grid positions
+            d = self.defender
+            wd = d.grid[0]
+            hd = d.grid[1]
+            k = self.keepout
+            k_grid = get_grid(k.position)
+            ws = k_grid[0]
+            hs = k_grid[1]
+
+            # chose the action in that direction
+            if wd > ws and hd > hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # left
+                    action = 1
+                elif abs(wd - ws) < abs(hd - hs):
+                    # forward
+                    action = 3
+                elif abs(wd - ws) == abs(hd - hs):
+                    # left, there is more ground to cover in the width
+                    action = 1
+            elif wd > ws and hd < hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # left
+                    action = 1
+                elif abs(wd - ws) < abs(hd - hs):
+                    # backward
+                    action = 4
+                elif abs(wd - ws) == abs(hd - hs):
+                    # left, there is more ground to cover in the width
+                    action = 1
+            elif wd > ws and hd == hs:
+                # left
+                action = 1
+            elif wd < ws and hd > hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # right
+                    action = 2
+                elif abs(wd - ws) < abs(hd - hs):
+                    # forward
+                    action = 3
+                elif abs(wd - ws) == abs(hd - hs):
+                    # right, there is more ground to cover in the width
+                    action = 2
+            elif wd < ws and hd < hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # right
+                    action = 2
+                elif abs(wd - ws) < abs(hd - hs):
+                    # backward
+                    action = 4
+                elif abs(wd - ws) == abs(hd - hs):
+                    # right, there is more ground to cover in the width
+                    action = 2
+            elif wd < ws and hd == hs:
+                # right
+                action = 2
+            elif wd == ws and hd < hs:
+                # backward
+                action = 4
+            elif wd == ws and hd > hs:
+                # forward
+                action = 3
+            else:
+                action = 0
+
+        else:
+
+            # grid positions
+            d = self.defender
+            wd = d.grid[0]
+            hd = d.grid[1]
+            ws = closest_s.grid[0]
+            hs = closest_s.grid[1]
+
+            # chose the action in that direction
+            if wd > ws and hd > hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # left
+                    action = 1
+                elif abs(wd - ws) < abs(hd - hs):
+                    # forward
+                    action = 3
+                elif abs(wd - ws) == abs(hd - hs):
+                    # left, there is more ground to cover in the width
+                    action = 1
+            elif wd > ws and hd < hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # left
+                    action = 1
+                elif abs(wd - ws) < abs(hd - hs):
+                    # backward
+                    action = 4
+                elif abs(wd - ws) == abs(hd - hs):
+                    # left, there is more ground to cover in the width
+                    action = 1
+            elif wd > ws and hd == hs:
+                # left
+                action = 1
+            elif wd < ws and hd > hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # right
+                    action = 2
+                elif abs(wd - ws) < abs(hd - hs):
+                    # forward
+                    action = 3
+                elif abs(wd - ws) == abs(hd - hs):
+                    # right, there is more ground to cover in the width
+                    action = 2
+            elif wd < ws and hd < hs:
+                if abs(wd - ws) > abs(hd - hs):
+                    # right
+                    action = 2
+                elif abs(wd - ws) < abs(hd - hs):
+                    # backward
+                    action = 4
+                elif abs(wd - ws) == abs(hd - hs):
+                    # right, there is more ground to cover in the width
+                    action = 2
+            elif wd < ws and hd == hs:
+                # right
+                action = 2
+            elif wd == ws and hd < hs:
+                # backward
+                action = 4
+            elif wd == ws and hd > hs:
+                # forward
+                action = 3
+            else:
+                action = 0
 
         return action
 

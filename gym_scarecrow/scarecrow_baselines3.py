@@ -25,6 +25,15 @@ if ALGORITHM == 'Human':
         if done:
             obs = env.reset()
 
+elif ALGORITHM == 'Rules':
+    obs = env.reset()
+    while True:
+        action = env.scarecrow.rule_input()
+        obs, reward, done, info = env.step(action)
+        env.render()
+        if done:
+            obs = env.reset()
+
 else:
 
     # this is added to include monitoring of things like average reward

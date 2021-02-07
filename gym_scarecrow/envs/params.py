@@ -13,10 +13,10 @@ SUBJECT_COLOR = (255, 0, 0)
 DEFENDER_COLOR = (0, 0, 255)
 
 # reinforcement learner parameters
-ALGORITHM = 'PPO'  # 'DQN', 'PPO', 'Human'
+ALGORITHM = 'Rules'  # 'DQN', 'PPO', 'Human', 'Rules'
 TRAIN = False
 NUM_EPISODES = 1000
-MAX_STEPS = 1000
+MAX_STEPS = 100
 DISCOUNT_FACTOR = 0.99
 BATCH_SIZE = 32
 SOFT_UPDATE = 100
