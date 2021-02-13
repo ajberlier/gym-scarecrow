@@ -38,6 +38,7 @@ SPOOK_DISTANCE = 60
 SPOOK_FORCE = 100
 
 # game parameters
+START_POSITION = [int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)]
 GAME_SPEED = 5  # fps
 SUBJECT_COUNT = 5  # pigs
 DEFENDER_COUNT = 1  # uavs
@@ -45,3 +46,6 @@ WIDTH_COUNT = int(SCREEN_WIDTH/GRID_SIZE)
 HEIGHT_COUNT = int(SCREEN_HEIGHT/GRID_SIZE)
 GRID_COUNT = WIDTH_COUNT * HEIGHT_COUNT
 ACTION_MEANING = {0: 'still', 1: 'left', 2: 'right', 3: 'forward', 4: 'backward'}
+
+# hardware parametetrs
+STEP_DISTANCE = 1  # meter

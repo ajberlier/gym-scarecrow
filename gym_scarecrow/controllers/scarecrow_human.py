@@ -3,7 +3,6 @@ import gym
 import gym_scarecrow
 from gym_scarecrow.envs.key_control import KeyControl
 from gym_scarecrow.envs.scarecrow_2d import Scarecrow2D
-from gym_scarecrow.envs.scarecrow_hardware import Hardware
 
 import pygame
 
@@ -33,8 +32,5 @@ class ScarecrowHuman:
         done = False
         while not done:
             action = self.human_input()
-            # send actions to hardware
-            if HARDWARE:
-                Hardware.send_action(action)
             obs, reward, done, info = env.step(action)
             env.render()

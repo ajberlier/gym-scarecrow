@@ -1,13 +1,12 @@
 from gym_scarecrow.envs.utils import *
 from gym_scarecrow.params import *
-from gym_scarecrow.envs.key_control import *
 from gym_scarecrow.envs.keepout import Keepout
-from gym_scarecrow.envs.defender import Defender
+from gym_scarecrow.envs.defender import *
 from gym_scarecrow.envs.subject import Subject
 
-import math
+from src.system.controller.python.controller_interface import ControllerInterface
+
 import pygame
-import numpy as np
 
 
 class Scarecrow2D:
@@ -24,38 +23,19 @@ class Scarecrow2D:
         self.font = pygame.font.SysFont("Arial", 50)
         self.game_speed = GAME_SPEED
         self.keepout = Keepout(self.screen)
-        self.defender = Defender(self.screen)
+        self.controller = ControllerInterface()
+        if HARDWARE:
+            self.defender = HardwareDefender(self.screen, self.controller)
+        else:
+            self.defender = Defender(self.screen)
         self.prev_distance = 0
         self.cur_distance = 0
         self.subjects = [Subject(self.screen) for _ in range(SUBJECT_COUNT)]
         self.steps = 0
 
     def action(self, action):
-        speed = GRID_SIZE
 
-        # still
-        if action == 0:
-            pass
-        # left
-        if action == 1:
-            self.defender.position[0] -= speed
-            if self.defender.position[0] < 30:
-                self.defender.position[0] = 30
-        # right
-        elif action == 2:
-            self.defender.position[0] += speed
-            if self.defender.position[0] > 1170:
-                self.defender.position[0] = 1170
-        # up
-        elif action == 3:
-            self.defender.position[1] -= speed
-            if self.defender.position[1] < 30:
-                self.defender.position[1] = 30
-        # down
-        elif action == 4:
-            self.defender.position[1] += speed
-            if self.defender.position[1] > 770:
-                self.defender.position[1] = 770
+        self.defender.move(action)
 
         # TODO: multiple defenders
         self.defender.update()
@@ -94,7 +74,7 @@ class Scarecrow2D:
 
         # encouraging it to stay near the keepout zone helped, small proportional penalty
         d = self.defender
-        dist = abs(get_distance(d.position, self.keepout.position))
+        dist = abs(get_distance(d.game_position, self.keepout.position))
         # reward = -dist / SCREEN_WIDTH
 
         # if spooked subject, + 1
