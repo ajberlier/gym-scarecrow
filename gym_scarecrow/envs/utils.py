@@ -4,10 +4,26 @@ import pygame
 import numpy as np
 import matplotlib.pyplot as plt
 
-from gym_scarecrow.envs.params import *
+from gym_scarecrow.params import *
+
+
+def quinary_to_int(obs):
+    value = 0
+    quin = [5**i for i in reversed(range(len(obs)))]
+    for i, ob in enumerate(obs):
+        value += ob * quin[i]
+
+    return value
+
 
 def get_grid(position):
-    return [int(position[0] / GRID_SIZE), int(position[1] / GRID_SIZE)]
+    # FIXME: this is terrible, but the quickest easiest way to fix this in the time I have...
+    if np.isnan(position[0]):
+        position[0] = 0
+    if np.isnan(position[1]):
+        position[1] = 0
+    grid = [int(position[0] / OBS_GRID_SIZE_W), int(position[1] / OBS_GRID_SIZE_H)]
+    return grid
 
 
 def get_distance(p1, p2):

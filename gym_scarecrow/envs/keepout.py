@@ -1,7 +1,8 @@
-import pygame
 import math
+import pygame
+
+from gym_scarecrow.params import *
 from gym_scarecrow.envs.utils import *
-from gym_scarecrow.envs.params import *
 
 
 class Keepout:

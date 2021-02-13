@@ -1,9 +1,9 @@
-import random
 import math
+import random
 import pygame
 
+from gym_scarecrow.params import *
 from gym_scarecrow.envs.utils import *
-from gym_scarecrow.envs.params import *
 
 
 class Defender:
@@ -12,7 +12,8 @@ class Defender:
     def __init__(self, screen):
         self.screen = screen
         self.color = DEFENDER_COLOR
-        self.position = [SCREEN_WIDTH - SCREEN_WIDTH/2, SCREEN_HEIGHT - SCREEN_HEIGHT/2]
+        self.position = [int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)]
+        # self.position = [random.randint(0, SCREEN_WIDTH), random.randint(0, SCREEN_HEIGHT)]
         self.grid = get_grid(self.position)
 
     def draw(self):

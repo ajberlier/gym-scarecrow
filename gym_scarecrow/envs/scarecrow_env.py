@@ -1,11 +1,11 @@
-import numpy as np
-from gym_scarecrow.envs.params import *
-
-# gym
 import gym
-from gym import error, spaces, utils
 from gym.utils import seeding
+from gym import error, spaces, utils
+
+from gym_scarecrow.params import *
 from gym_scarecrow.envs.scarecrow_2d import Scarecrow2D
+
+import numpy as np
 
 
 class ScarecrowEnv(gym.Env):
@@ -15,19 +15,16 @@ class ScarecrowEnv(gym.Env):
         print('Game Init!')
         self.action_space = spaces.Discrete(len(ACTION_MEANING))
         # FIXME: this needs updated if extended to 3D
-        self.observation_space = spaces.Box(low=0, high=7, shape=(HEIGHT_COUNT, WIDTH_COUNT), dtype=np.uint8)
+        # self.observation_space = spaces.Box(low=0, high=7, shape=(HEIGHT_COUNT, WIDTH_COUNT), dtype=np.uint8)
+        self.observation_space = spaces.Discrete(OBS_GRID_COUNT ** (SUBJECT_COUNT + DEFENDER_COUNT))
         self.is_view = True
         self.scarecrow = Scarecrow2D(self.is_view)
-        self.mode = 0
         self.memory = []
 
     def reset(self):
 
         del self.scarecrow
-        if self.mode == 0:
-            self.scarecrow = Scarecrow2D(self.is_view)
-        else:
-            self.scarecrow = Scarecrow2D(self.is_view)
+        self.scarecrow = Scarecrow2D(self.is_view)
         obs = self.scarecrow.observe()
         return obs
 
@@ -51,7 +48,7 @@ class ScarecrowEnv(gym.Env):
 
     def save_memory(self, file):
         np.save(file, self.memory)
-        print("history saved")
+        print("--- History Logged ---")
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))

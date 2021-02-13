@@ -1,12 +1,13 @@
-import pygame
-import math
-import numpy as np
 from gym_scarecrow.envs.utils import *
-from gym_scarecrow.envs.params import *
+from gym_scarecrow.params import *
 from gym_scarecrow.envs.key_control import *
 from gym_scarecrow.envs.keepout import Keepout
 from gym_scarecrow.envs.defender import Defender
 from gym_scarecrow.envs.subject import Subject
+
+import math
+import pygame
+import numpy as np
 
 
 class Scarecrow2D:
@@ -17,12 +18,13 @@ class Scarecrow2D:
         # display game icon
         set_png_icon(ICON_PATH)
         self.clock = pygame.time.Clock()
+        self.is_render = is_render
+        # FIXME: do not draw the screen in training...
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.font = pygame.font.SysFont("Arial", 50)
         self.game_speed = GAME_SPEED
         self.keepout = Keepout(self.screen)
         self.defender = Defender(self.screen)
-        self.is_render = is_render
         self.prev_distance = 0
         self.cur_distance = 0
         self.subjects = [Subject(self.screen) for _ in range(SUBJECT_COUNT)]
@@ -64,239 +66,26 @@ class Scarecrow2D:
             s.update(self.defender)
         self.keepout.update(self.subjects)
 
-    # TODO: breakout human and rules input into an input class
-    def human_input(self):
-        keys_pressed = pygame.key.get_pressed()
-
-        if keys_pressed[pygame.K_LEFT]:
-            action = 1
-        elif keys_pressed[pygame.K_RIGHT]:
-            action = 2
-        elif keys_pressed[pygame.K_UP]:
-            action = 3
-        elif keys_pressed[pygame.K_DOWN]:
-            action = 4
-        else:
-            action = 0
-
-        return action
-
-    # FIXME: this is a very messy attempt to get something before the deadline as the RL tuning is still in process
-    def rule_input(self):
-        # find the subject that is closest to the keepout center
-        s_dist_list = []
-        for s in self.subjects:
-            dist = abs(get_distance(s.position, self.keepout.position))
-            s_dist_list.append(dist)
-
-        # get the shortest distance
-        min_idx = s_dist_list.index(min(s_dist_list))
-        closest_s = self.subjects[min_idx]
-
-        if min(s_dist_list) > 400 or closest_s.spooked:
-
-            # return to center of keepout
-            # grid positions
-            d = self.defender
-            wd = d.grid[0]
-            hd = d.grid[1]
-            k = self.keepout
-            k_grid = get_grid(k.position)
-            ws = k_grid[0]
-            hs = k_grid[1]
-
-            # chose the action in that direction
-            if wd > ws and hd > hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # left
-                    action = 1
-                elif abs(wd - ws) < abs(hd - hs):
-                    # forward
-                    action = 3
-                elif abs(wd - ws) == abs(hd - hs):
-                    # left, there is more ground to cover in the width
-                    action = 1
-            elif wd > ws and hd < hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # left
-                    action = 1
-                elif abs(wd - ws) < abs(hd - hs):
-                    # backward
-                    action = 4
-                elif abs(wd - ws) == abs(hd - hs):
-                    # left, there is more ground to cover in the width
-                    action = 1
-            elif wd > ws and hd == hs:
-                # left
-                action = 1
-            elif wd < ws and hd > hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # right
-                    action = 2
-                elif abs(wd - ws) < abs(hd - hs):
-                    # forward
-                    action = 3
-                elif abs(wd - ws) == abs(hd - hs):
-                    # right, there is more ground to cover in the width
-                    action = 2
-            elif wd < ws and hd < hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # right
-                    action = 2
-                elif abs(wd - ws) < abs(hd - hs):
-                    # backward
-                    action = 4
-                elif abs(wd - ws) == abs(hd - hs):
-                    # right, there is more ground to cover in the width
-                    action = 2
-            elif wd < ws and hd == hs:
-                # right
-                action = 2
-            elif wd == ws and hd < hs:
-                # backward
-                action = 4
-            elif wd == ws and hd > hs:
-                # forward
-                action = 3
-            else:
-                action = 0
-
-        else:
-
-            # grid positions
-            d = self.defender
-            wd = d.grid[0]
-            hd = d.grid[1]
-            ws = closest_s.grid[0]
-            hs = closest_s.grid[1]
-
-            # chose the action in that direction
-            if wd > ws and hd > hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # left
-                    action = 1
-                elif abs(wd - ws) < abs(hd - hs):
-                    # forward
-                    action = 3
-                elif abs(wd - ws) == abs(hd - hs):
-                    # left, there is more ground to cover in the width
-                    action = 1
-            elif wd > ws and hd < hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # left
-                    action = 1
-                elif abs(wd - ws) < abs(hd - hs):
-                    # backward
-                    action = 4
-                elif abs(wd - ws) == abs(hd - hs):
-                    # left, there is more ground to cover in the width
-                    action = 1
-            elif wd > ws and hd == hs:
-                # left
-                action = 1
-            elif wd < ws and hd > hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # right
-                    action = 2
-                elif abs(wd - ws) < abs(hd - hs):
-                    # forward
-                    action = 3
-                elif abs(wd - ws) == abs(hd - hs):
-                    # right, there is more ground to cover in the width
-                    action = 2
-            elif wd < ws and hd < hs:
-                if abs(wd - ws) > abs(hd - hs):
-                    # right
-                    action = 2
-                elif abs(wd - ws) < abs(hd - hs):
-                    # backward
-                    action = 4
-                elif abs(wd - ws) == abs(hd - hs):
-                    # right, there is more ground to cover in the width
-                    action = 2
-            elif wd < ws and hd == hs:
-                # right
-                action = 2
-            elif wd == ws and hd < hs:
-                # backward
-                action = 4
-            elif wd == ws and hd > hs:
-                # forward
-                action = 3
-            else:
-                action = 0
-
         return action
 
     def observe(self):
-        """
-        0: empty field (green space)
-        1: defender only (blue space)
-        2: subject only (red space)
-        3: keepout area only (black space)
-        4: keepout area and defender (black and blue space)
-        5: keepout area and subject (black and red space --> breached!)
-        6: defender and subject (red and blue space --> spooked!)
-        7: keepout area and defender and subject (black, blue, and red space --> breached! spooked!)
-        """
-        sub_idx = []
-        def_idx = []
-        keepout_idx = []
+        obs = []
 
-        # set every grid to empty field 0: empty field (green space)
-        obs = [0]*GRID_COUNT
-
-        # check 1: defender only (blue space)
-        # TODO: update for multiple defenders
-        # for d in defenders:
+        # grid position for defender
         d = self.defender
-        def_idx.append(int(WIDTH_COUNT * (d.grid[1] - 1) + d.grid[0]) - 1)
-        # set every defender index to 1: defender only (blue space)
-        for idx in def_idx:
-            obs[idx] = 1
+        obs.append(d.grid[0])
+        obs.append(d.grid[1])
 
-        # 2: subject only (red space)
-        # subject grids
+        # grid position for all subjects
         for s in self.subjects:
-            sub_idx.append(int(WIDTH_COUNT * (s.grid[1] - 1) + s.grid[0]) - 1)
-        # set every sub_idx to 2: subject only (red space)
-        for idx in sub_idx:
-            if obs[idx] == 0:
-                obs[idx] = 2
-            # check 6: defender and subject (red and blue space --> spooked!)
-            elif obs[idx] == 1:
-                obs[idx] = 6
-            elif obs[idx] == 2 or obs[idx] == 6:
-                pass
-            else:
-                print('Subject observation ERROR!')
-                print(obs[idx])
+            obs.append(s.grid[0])
+            obs.append(s.grid[1])
 
-        # check 3: keepout area only (black space)
-        k = self.keepout
-        for i in k.grids:
-            keepout_idx.append(int(WIDTH_COUNT * (i[1] - 1) + i[0]) - 1)
-
-        for idx in keepout_idx:
-            if obs[idx] == 0:
-                obs[idx] = 3
-            # check 4: keepout area and defender (black and blue space)
-            elif obs[idx] == 1:
-                obs[idx] = 4
-            # 5: keepout area and subject (black and red space --> breached!)
-            elif obs[idx] == 2:
-                obs[idx] = 5
-            # 7: keepout area and defender and subject (black, blue, and red space --> breached! spooked!)
-            elif obs[idx] == 6:
-                obs[idx] = 7
-            else:
-                print('Keepout observation ERROR!')
-
-        # just checking my observation is correct
-        obs_array = np.reshape(np.asarray(obs), (HEIGHT_COUNT, WIDTH_COUNT))
+        # encode as int
+        encode_obs = quinary_to_int(obs)
 
         # return an array of each spaces value
-        return obs_array
+        return encode_obs
 
     # TODO: update with better reward
     def evaluate(self):

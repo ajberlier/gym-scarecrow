@@ -3,7 +3,7 @@ import random
 import pygame
 import numpy as np
 from gym_scarecrow.envs.utils import *
-from gym_scarecrow.envs.params import *
+from gym_scarecrow.params import *
 
 
 class Subject:
