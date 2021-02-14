@@ -76,6 +76,9 @@ class HardwareDefender(Defender):
             my_agent = agents[agent_id]
         # get current position
         x, y, z = my_agent.get_location()
+        print("Action: " + str(action))
+        print("X: " + str(x))
+        print("Y: " + str(y))
         self.my_agent = my_agent
         # set position based on action taken
         if action == 1:  # left
@@ -93,7 +96,10 @@ class HardwareDefender(Defender):
         y = float(y)
         z = float(z)
 
-        # Update the struct
+        print("X: " + str(x))
+        print("Y: " + str(y))
+
+# Update the struct
         agent_cmd = Agent(0, 0, (0, 0, 0), (0, 0, 0))
         agent_cmd.set_id(agent_id)
         agent_cmd.update(
