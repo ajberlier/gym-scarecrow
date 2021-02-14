@@ -4,7 +4,8 @@ from gym_scarecrow.envs.keepout import Keepout
 from gym_scarecrow.envs.defender import *
 from gym_scarecrow.envs.subject import Subject
 
-from src.system.controller.python.controller_interface import ControllerInterface
+if HARDWARE:
+    from src.system.controller.python.controller_interface import ControllerInterface
 
 import pygame
 

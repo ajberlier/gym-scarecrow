@@ -5,7 +5,8 @@ import pygame
 from gym_scarecrow.params import *
 from gym_scarecrow.envs.utils import *
 
-from src.system.controller.python.controller_interface import Agent
+if HARDWARE:
+    from src.system.controller.python.controller_interface import Agent
 
 
 class Defender:
