@@ -14,16 +14,16 @@ DEFENDER_COLOR = (0, 0, 255)
 
 # reinforcement learner parameters
 ALGORITHM = 'Human'  # 'Qlearn', 'Human', 'Rules'| Coming Soon: 'DQN', 'PPO'
-HARDWARE = True
+HARDWARE = False
 TRAIN = True
 MAX_STEPS = 1000  # steps of the simulation in an episode
-NUM_EPISODES = 2  # total number of episodes run
+NUM_EPISODES = 1 #25000  # total number of episodes run
 # Qlearn params
 ALPHA = 0.1  # learning rate
 GAMMA = 0.6  # discount factor
 EPSILON = 0.99  # percent of actions taken at random
-EPSILON_DECAY = 0.99  # rate of decay for epsilon to trade off random exploration for exploitation on value function
-PLAY_QTABLE = ''
+EPSILON_DECAY = 0.999  # rate of decay for epsilon to trade off random exploration for exploitation on value function
+PLAY_QTABLE = '20210214-011253/Qlearn_history.npy'
 OBS_GRID_SIZE_W = 240
 OBS_GRID_SIZE_H = 160
 OBS_WIDTH_COUNT = int(SCREEN_WIDTH/OBS_GRID_SIZE_W)

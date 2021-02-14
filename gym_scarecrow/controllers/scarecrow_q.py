@@ -14,6 +14,7 @@ import gym_scarecrow
 class ScarecrowQ:
     def __init__(self, i):
         self.epsilon = EPSILON * EPSILON_DECAY ** i
+        self.cum_reward = 0
 
     def train(self, env, obs, q_table):
         # loop for a single episode
@@ -24,6 +25,8 @@ class ScarecrowQ:
                 action = env.action_space.sample()  # explore action space
             else:
                 action = np.argmax(q_table[obs])  # exploit learned values
+
+            print('Action: ' + str(action))
 
             # take action to determine next observed state
             next_obs, reward, done, info = env.step(action)
@@ -39,24 +42,25 @@ class ScarecrowQ:
             # update observation
             obs = next_obs
 
-        print("Q-learning Algorithm: Training Complete!.\n")
+            # cumulative reward
+            self.cum_reward += reward
+
+        print('\nQ-learning Algorithm: Training Complete!.')
+        print('\nTotal Reward: ' + str(self.cum_reward))
+        print('\nEpsilon: ' + str(self.epsilon))
 
         return q_table
 
+    def play(self, env, obs, q_file_path):
+        # load q table
+        q_table = np.load(q_file_path)
 
-def play(self, env, obs, date):
-    # load q table
-    file_name = PLAY_QTABLE
-    q_table = np.load(file_name)
-
-    # loop for a single episode
-    done = False
-    while not done:
-        action = np.argmax(q_table[obs])  # exploit learned values
-        # TODO: send action to hardware
-
-        obs, reward, done, info = env.step(action)
-        env.render()
+        # loop for a single episode
+        done = False
+        while not done:
+            action = np.argmax(q_table[obs])  # exploit learned values
+            obs, reward, done, info = env.step(action)
+            env.render()
 
 
 

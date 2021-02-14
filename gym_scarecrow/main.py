@@ -29,9 +29,14 @@ os.path.abspath(save_dir)
 file_name = ALGORITHM + '_history.npy'
 file_path = os.path.join(save_dir, file_name)
 
-# save learned Q-table
-q_file_name = 'qtable_' + str(date) + '.npy'
-q_file_path = os.path.join(save_dir, file_name)
+if TRAIN:
+    # save learned Q-table
+    q_file_name = 'qtable.npy'
+    q_file_path = os.path.join(save_dir, q_file_name)
+else:
+    # load learned Q-table
+    save_dir = 'controllers/logging/' + ALGORITHM + '/'
+    q_file_path = os.path.join(save_dir, PLAY_QTABLE)
 
 # initialize table for Q-learning
 if ALGORITHM == 'Qlearn':
@@ -58,12 +63,12 @@ for i in range(NUM_EPISODES):
         if TRAIN:
             q_table = agent.train(env, obs, q_table)
         else:
-            agent.play(env, obs)
+            agent.play(env, obs, q_file_path)
 
 # save memory
 env.save_memory(file_path)
 
 # save q-table
-if ALGORITHM == 'Qlearn':
+if ALGORITHM == 'Qlearn' and TRAIN:
     np.save(q_file_path, q_table)
     print("--- Q-table Logged ---")
