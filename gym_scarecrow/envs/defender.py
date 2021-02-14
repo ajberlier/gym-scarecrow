@@ -64,10 +64,12 @@ class HardwareDefender(Defender):
 
         # convert unit between hardware and game
         # hardware_position = (self.game_position - START_POSITION)/GRID_SIZE
-        self.game_position = GRID_SIZE * list(self.my_agent.get_location())[::1] + START_POSITION
+        self.game_position = list(GRID_SIZE * np.array(list(self.my_agent.get_location())[:2]) + np.array(START_POSITION))
 
     def move(self, action):
         # get agents
+        if len(self.controller.get_my_agents()) == 0:
+            return
         agent_id = max(self.controller.get_my_agents())
         agents = self.controller.get_agents()
         if agent_id in agents:
@@ -85,7 +87,7 @@ class HardwareDefender(Defender):
         elif action == 4:  # backward
             x += -STEP_DISTANCE
         else:
-            pass
+            return
 
         x = float(x)
         y = float(y)

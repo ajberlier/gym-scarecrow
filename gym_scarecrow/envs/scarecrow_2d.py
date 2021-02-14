@@ -23,8 +23,8 @@ class Scarecrow2D:
         self.font = pygame.font.SysFont("Arial", 50)
         self.game_speed = GAME_SPEED
         self.keepout = Keepout(self.screen)
-        self.controller = ControllerInterface()
         if HARDWARE:
+            self.controller = ControllerInterface()
             self.defender = HardwareDefender(self.screen, self.controller)
         else:
             self.defender = Defender(self.screen)

@@ -18,7 +18,7 @@ class ScarecrowEnv(gym.Env):
         # self.observation_space = spaces.Box(low=0, high=7, shape=(HEIGHT_COUNT, WIDTH_COUNT), dtype=np.uint8)
         self.observation_space = spaces.Discrete(OBS_GRID_COUNT ** (SUBJECT_COUNT + DEFENDER_COUNT))
         self.is_view = True
-        self.scarecrow = Scarecrow2D(self.is_view)
+        self.scarecrow = None
         self.memory = []
 
     def reset(self):

@@ -100,9 +100,9 @@ class Subject:
         # TODO: update for multiple defenders
         # for d in defender:
         d = defender
-        dist = get_distance(self.position, d.position)
+        dist = get_distance(self.position, d.game_position)
         if dist < SUBJECT_PERCEPTION:
-            diff = list(np.array(self.position) - np.array(d.position))
+            diff = list(np.array(self.position) - np.array(d.game_position))
             steering_force += list(np.array(diff) / np.array(dist))
             total += 1
 
@@ -124,8 +124,8 @@ class Subject:
         self.acceleration += self.separation(subjects)
         self.acceleration += self.avoidance(defenders)
 
-    def is_spooked(self, defender):
-        if get_distance(defender.position, self.position) <= SPOOK_DISTANCE:
+    def is_spooked(self, d):
+        if get_distance(d.game_position, self.position) <= SPOOK_DISTANCE:
             self.spooked = True
             self.color = SPOOK_COLOR
         else:

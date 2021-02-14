@@ -16,7 +16,7 @@ DEFENDER_COLOR = (0, 0, 255)
 ALGORITHM = 'Human'  # 'Qlearn', 'Human', 'Rules'| Coming Soon: 'DQN', 'PPO'
 HARDWARE = True
 TRAIN = True
-MAX_STEPS = 10  # steps of the simulation in an episode
+MAX_STEPS = 1000  # steps of the simulation in an episode
 NUM_EPISODES = 2  # total number of episodes run
 # Qlearn params
 ALPHA = 0.1  # learning rate
