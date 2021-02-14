@@ -94,7 +94,7 @@ class HardwareDefender(Defender):
         z = float(z)
 
         # Update the struct
-        agent_cmd = Agent()
+        agent_cmd = Agent(0, 0, (0, 0, 0), (0, 0, 0))
         agent_cmd.set_id(agent_id)
         agent_cmd.update(
             0,  # Ignored by sender code - ID setting not required

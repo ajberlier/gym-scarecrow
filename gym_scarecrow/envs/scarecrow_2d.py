@@ -25,6 +25,7 @@ class Scarecrow2D:
         self.keepout = Keepout(self.screen)
         if HARDWARE:
             self.controller = ControllerInterface()
+            self.controller.start()
             self.defender = HardwareDefender(self.screen, self.controller)
         else:
             self.defender = Defender(self.screen)
