@@ -1,6 +1,6 @@
 # SCAREcrow Gym Environment
 OpenAI Gym environment for the SCAREcrow project.
-[![SCAREcrow AI vs 100 Pigs](SCAREcrow_logo.png)]
+![SCAREcrow AI vs 100 Pigs](SCAREcrow_logo.png)
 
 ## Wiki
 Checkout our Wiki [Here](https://github.com/mcelhennyi/NXP-HoverGames-2/wiki)!
