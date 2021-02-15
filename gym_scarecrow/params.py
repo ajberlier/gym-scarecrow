@@ -13,10 +13,10 @@ SUBJECT_COLOR = (255, 0, 0)
 DEFENDER_COLOR = (0, 0, 255)
 
 # reinforcement learner parameters
-ALGORITHM = 'Human'  # 'Qlearn', 'Human', 'Rules'| Coming Soon: 'DQN', 'PPO'
+ALGORITHM = 'Rules'  # 'Qlearn', 'Human', 'Rules'| Coming Soon: 'DQN', 'PPO'
 HARDWARE = False
 TRAIN = True
-MAX_STEPS = 1000  # steps of the simulation in an episode
+MAX_STEPS = 100000  # steps of the simulation in an episode
 NUM_EPISODES = 1 #25000  # total number of episodes run
 # Qlearn params
 ALPHA = 0.1  # learning rate
@@ -40,7 +40,7 @@ SPOOK_FORCE = 100
 # game parameters
 START_POSITION = [int(SCREEN_WIDTH/2), int(SCREEN_HEIGHT/2)]
 GAME_SPEED = 5  # fps
-SUBJECT_COUNT = 5  # pigs
+SUBJECT_COUNT = 100  # pigs
 DEFENDER_COUNT = 1  # uavs
 WIDTH_COUNT = int(SCREEN_WIDTH/GRID_SIZE)
 HEIGHT_COUNT = int(SCREEN_HEIGHT/GRID_SIZE)

@@ -22,7 +22,7 @@ def get_grid(position):
         position[0] = 0
     if np.isnan(position[1]):
         position[1] = 0
-    grid = [int(position[0] / OBS_GRID_SIZE_W)-1, int(position[1] / OBS_GRID_SIZE_H)-1]
+    grid = [int(position[0] / GRID_SIZE)-1, int(position[1] / GRID_SIZE)-1]
     return grid
 
 
